@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require_relative "reroute-hooks"
+
+run_global_then_repository_hooks("commit-msg")
