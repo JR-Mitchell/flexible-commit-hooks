@@ -1,4 +1,4 @@
-# Flexible Commit Hooks
+# Flexible Commit Hooks v0.0.1
 A tool for managing multiple commit hooks both locally to a repository and globally.
 
 Client-side commit hooks can be really useful things, right?

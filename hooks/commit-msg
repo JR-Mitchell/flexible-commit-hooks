@@ -1,0 +1,111 @@
+#!/usr/bin/env ruby
+
+ConventionalCommitMessage = Class.new do
+    attr_reader :error, :type, :scopes, :description, :body, :footers, :breaking
+
+    def initialize(message)
+        @error = "Unknown error parsing conventional commit message!"
+        @breaking = false
+        all_lines = message.lines(chomp: true).select { |line|
+            # Filter out comment lines
+            line.empty?() || line[0] != "#"
+        }
+        if (all_lines.empty?()) then
+            @error = "Commit message is empty!"
+            return
+        end
+        header = all_lines.shift()
+        # The conventional commit spec does not explicitly say that the description can't have a newline,
+        # but for the purposes of this example I would like to enforce that it cannot.
+        conventional_header_match = header.match(/^((?:[a-zA-Z]+)|(?:BREAKING CHANGE))(\([\w\-\.,]+\))?(!)?: (.+)$/)
+        if (conventional_header_match.nil?()) then
+            @error = "Commit header does not match the conventional commit style"
+            return
+        end
+        @type = conventional_header_match[1]
+        if (@type == "BREAKING CHANGE" || conventional_header_match[3] == "!") then
+            @breaking = true
+        end
+        if (conventional_header_match[2].nil?()) then
+            @scopes = []
+        else
+            @scopes = conventional_header_match[2][1..-2].split(",")
+        end
+        @footers = {}
+        @error = nil
+        # Check for a body
+        if (all_lines.empty?()) then
+            return
+        end
+        # Header and body must be separated by a newline
+        space = all_lines.shift().strip()
+        if not(space.empty?())
+            @error = "Missing newline between commit message header and body or footers"
+            return
+        end
+        if (all_lines.empty?())
+            @error = "Empty line after header with no following body or footers"
+            return
+        end
+        previous_line_was_blank = true
+        current_line = space
+        footer_key = nil
+        # Accumulate the body until we reach a footer declaration.
+        # Then, accumulate the footer.
+        while not(all_lines.empty?()) do
+            previous_line_was_blank = current_line.strip().empty?()
+            current_line = all_lines.shift()
+            footer_match = current_line.match(/^((?:[A-Za-z\-]+)|(?:BREAKING CHANGE))(?:(?:: )|(?: #))(.*)$/)
+            if ((previous_line_was_blank || not(footer_key.nil?())) && not(footer_match.nil?())) then
+                # Start of a new footer
+                footer_key = footer_match[1]
+                @footers[footer_key] = footer_match[2]
+            elsif (footer_key.nil?()) then
+                # Part of the body
+                if (@body.nil?()) then
+                    @body = current_line
+                else
+                    @body += "\n"
+                    @body += current_line
+                end
+            else
+                # Continuation of a footer value
+                @footers[footer_key] += "\n"
+                @footers[footer_key] += current_line
+            end
+        end
+        if (@footers.include?("BREAKING CHANGE") || @footers.include?("BREAKING-CHANGE")) then
+            @breaking = true
+        end
+    end
+
+    def raise_if_error()
+        unless @error.nil?()
+            raise @error
+        end
+    end
+end
+
+commit_message = ConventionalCommitMessage.new(File.read(ARGV[0]))
+commit_message.raise_if_error()
+
+readme_path = File.expand_path(__dir__)
+readme_path = File.dirname(readme_path)
+readme_path = File.join(readme_path, "README.md")
+readme_header = File.read(readme_path).lines()[0]
+readme_header_match = readme_header.match(/^# Flexible Commit Hooks v(\d+\.\d+\.\d+)/)
+if (readme_header_match.nil?()) then
+    raise "Unable to find version code in README.md!"
+end
+
+readme_version = readme_header_match[1]
+
+if not(commit_message.footers.include?("Version")) then
+    raise "No Version footer in commit message!"
+end
+
+commit_message_version = commit_message.footers["Version"]
+
+if (readme_version != commit_message_version) then
+    raise "README version (#{readme_version}) does not match commit message version (#{commit_message_version})"
+end
