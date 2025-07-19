@@ -22,5 +22,26 @@ It was purpose-built by me in order to fix my problem of wanting to have three d
 
 ## Installation
 
-For now, as this repo is empty, there are no installation instructions.
-I will update this section when there are!
+Note that, as this repo is still in early development, you may have to reinstall quite a few times if you install now.
+
+### For new repositories
+
+There are two ways to set up so that all of your future repos will use flexible commit hooks.
+Both involve first cloning this repo.
+
+#### The do-it-yourself approach
+If you want to know what you are doing, then follow these steps:
+1. Set up a global git template directory using `git config --global init.templatedir` followed by the name of your template directory
+2. Copy the contents of this repo's `src` directory to the `hooks` directory in the template directory
+
+#### The do-it-for-me approach
+Run `./scripts/global-template-setup` from the root directory of this repository.
+This will do the above steps for you, with the template directory `~/.git_template`.
+
+### For existing repositories
+
+Unfortunately, for the moment, there is no tool to help you update existing repositories to use Flexible Commit Hooks.
+You'll have to `cp` the contents of the `src` directory across yourself:
+```bash
+cp /path/to/flexible-commit-hooks/src/* /path/to/existing/repo/.git/hooks/
+```

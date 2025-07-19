@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+mkdir -p ~/.git_template
+cp -r src/ ~/.git_template/hooks
+git config --global init.templatedir '~/.git_template'
