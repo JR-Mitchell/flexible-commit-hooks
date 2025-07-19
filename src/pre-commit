@@ -3,4 +3,4 @@
 
 require_relative 'reroute_hooks'
 
-run_global_then_repository_hooks('commit-msg', ARGV[0])
+run_global_then_repository_hooks('pre-commit')
