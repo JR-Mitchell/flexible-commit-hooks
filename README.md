@@ -45,3 +45,12 @@ You'll have to `cp` the contents of the `src` directory across yourself:
 ```bash
 cp /path/to/flexible-commit-hooks/src/* /path/to/existing/repo/.git/hooks/
 ```
+
+## Configuration
+
+The directories to look for hooks in defaults to the `hooks` directory in the current repository.
+This behaviour can be further configured through setting the `FLEXIBLE_COMMIT_HOOKS_DIRS` environment variable.
+This variable can contain multiple paths where hooks will be looked for.
+When specified as relative paths (e.g `./hooks`), the path will be calculated relative to the active git repository.
+Absolute paths may also be used, such as `/home/me/hooks` or `~/default_hooks`.
+When any hook can be found in more than one of the hooks directories, the hooks will be executed sequentially, in the order that their paths appear in the environment variable.

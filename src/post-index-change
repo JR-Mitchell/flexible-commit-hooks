@@ -3,4 +3,4 @@
 
 require_relative 'reroute_hooks'
 
-run_global_then_repository_hooks('post-index-change', ARGV[0], ARGV[1])
+run_hooks_in_order('post-index-change', ARGV[0], ARGV[1])

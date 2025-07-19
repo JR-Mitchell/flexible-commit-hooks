@@ -3,4 +3,4 @@
 
 require_relative 'reroute_hooks'
 
-run_global_then_repository_hooks('applypatch-msg', ARGV[0])
+run_hooks_in_order('applypatch-msg', ARGV[0])

@@ -3,4 +3,4 @@
 
 require_relative 'reroute_hooks'
 
-run_global_then_repository_hooks('post-merge', ARGV[0])
+run_hooks_in_order('post-merge', ARGV[0])

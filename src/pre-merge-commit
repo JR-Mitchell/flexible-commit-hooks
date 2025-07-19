@@ -3,4 +3,4 @@
 
 require_relative 'reroute_hooks'
 
-run_global_then_repository_hooks('pre-merge-commit')
+run_hooks_in_order('pre-merge-commit')

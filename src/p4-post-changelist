@@ -3,4 +3,4 @@
 
 require_relative 'reroute_hooks'
 
-run_global_then_repository_hooks('p4-post-changelist')
+run_hooks_in_order('p4-post-changelist')

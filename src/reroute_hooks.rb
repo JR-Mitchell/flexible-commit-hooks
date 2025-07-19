@@ -10,24 +10,20 @@ def run_hook_if_exists(hook_path, *args)
   exit 1
 end
 
-def run_repository_hook_if_exists(hook_name, *args)
-  hook_path = File.expand_path(__dir__)
-  hook_path = File.dirname(hook_path)
-  hook_path = File.dirname(hook_path)
-  hook_path = File.join(hook_path, 'hooks', hook_name)
-  run_hook_if_exists(hook_path, *args)
+def calculate_hook_paths
+  repo_root_dir = File.expand_path(__dir__)
+  repo_root_dir = File.dirname(repo_root_dir)
+  repo_root_dir = File.dirname(repo_root_dir)
+
+  paths_env = ENV.fetch('FLEXIBLE_COMMIT_HOOKS_DIRS', './hooks')
+  paths_env.split(File::PATH_SEPARATOR).map do |raw_path|
+    File.expand_path(raw_path, repo_root_dir)
+  end
 end
 
-def run_global_hook_if_exists(hook_name, *args)
-  global_path = ENV.fetch('FLEXIBLE_COMMIT_HOOKS_GLOBAL_PATH', nil)
-  return if global_path.nil?
-
-  hook_path = File.expand_path(global_path)
-  hook_path = File.join(hook_path, 'hooks', hook_name)
-  run_hook_if_exists(hook_path, *args)
-end
-
-def run_global_then_repository_hooks(hook_name, *args)
-  run_global_hook_if_exists(hook_name, *args)
-  run_repository_hook_if_exists(hook_name, *args)
+def run_hooks_in_order(hook_name, *args)
+  calculate_hook_paths.each do |path|
+    hook_path = File.join(path, hook_name)
+    run_hook_if_exists(hook_path, *args)
+  end
 end
