@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative 'reroute_hooks'
+
+run_global_then_repository_hooks('post-checkout', ARGV[0], ARGV[1], ARGV[2])
